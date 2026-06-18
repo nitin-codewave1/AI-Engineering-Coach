@@ -95,6 +95,33 @@ describe('parseCLIEventsFile', () => {
     });
   });
 
+  it('labels the harness as GitHub Copilot App when session.start carries remoteSteerable', () => {
+    const lines = [
+      JSON.stringify({
+        type: 'session.start',
+        timestamp: '2024-06-10T10:00:00.000Z',
+        data: { sessionId: 'app-session-1', startTime: '2024-06-10T10:00:00.000Z', selectedModel: 'gpt-4.1', remoteSteerable: false },
+      }),
+      JSON.stringify({
+        type: 'user.message',
+        timestamp: '2024-06-10T10:00:01.000Z',
+        data: { content: 'Write tests for parser.' },
+      }),
+      JSON.stringify({
+        id: 'assistant-1',
+        type: 'assistant.message',
+        timestamp: '2024-06-10T10:00:04.000Z',
+        data: { content: 'Added tests.', modelId: 'gpt-4.1', outputTokens: 321, toolRequests: [{ toolName: 'read_file' }] },
+      }),
+    ].join('\n');
+
+    withTempFile('events.jsonl', lines, (filePath) => {
+      const session = parseCLIEventsFile(filePath, 'ws-app', 'demo-workspace');
+      expect(session).toMatchObject({ sessionId: 'app-session-1', harness: 'GitHub Copilot App' });
+      expect(session?.requests[0].agentName).toBe('GitHub Copilot App');
+    });
+  });
+
   it('returns null when no assistant responses are present', () => {
     const lines = [
       JSON.stringify({ type: 'session.start', timestamp: '2024-06-10T10:00:00.000Z', data: { sessionId: 'cli-session-2' } }),

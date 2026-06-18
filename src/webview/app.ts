@@ -7,6 +7,7 @@
 
 import { AntiPatternData, DateFilter, StatsResult } from '../core/types';
 import { $, $$, rpc, destroyCharts, initMessageListener, withErrorBoundary } from './shared';
+import { loadCapabilities, llmAvailable } from './capabilities';
 import { html, render, unmount, ComponentChildren } from './render';
 import { renderDashboard } from './page-dashboard';
 import { renderPatterns } from './page-patterns';
@@ -441,8 +442,10 @@ function onDataReady(currentWorkspace: string): void {
     }
   }).catch(() => {});
 
-  navigateTo(currentPage);
-  refreshNavBadges(currentFilter);
+  void loadCapabilities().finally(() => {
+    navigateTo(currentPage);
+    refreshNavBadges(currentFilter);
+  });
 }
 
 initMessageListener(handleProgress, onDataReady);
@@ -462,6 +465,7 @@ document.addEventListener('click', (e) => {
 
 export function navigateTo(page: string): void {
   page = normalizePageForFeatureFlags(page);
+  if (!llmAvailable() && (page === 'skills' || page === 'level-up')) page = 'dashboard';
   currentPage = page;
   for (const a of $$<HTMLAnchorElement>('.nav-links a')) a.classList.toggle('active', a.dataset.page === page);
   void renderPage(page);

@@ -321,6 +321,7 @@ export const HARNESS_COLORS: Record<string, string> = {
   'Local Agent (Insiders)': '#24bfa5',
   'Xcode': '#147EFB',
   'GitHub Copilot CLI': '#6e40c9',
+  'GitHub Copilot App': '#8957e5',
   'Claude': '#d97706',
 
   'Codex': '#10b981',

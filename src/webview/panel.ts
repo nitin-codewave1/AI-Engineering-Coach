@@ -283,6 +283,13 @@ export class DashboardPanel {
       return;
     }
 
+    // Host capability probe — answered immediately so the webview can gate
+    // agent-dependent features. The VS Code host always has the local agent.
+    if (msg.method === 'getCapabilities') {
+      try { postResponse(this.panel.webview, msg.id, { host: 'vscode', llm: true }); } catch { /* disposed */ }
+      return;
+    }
+
     if (this.requestService.tryHandle(msg)) return;
 
     if (!this.dataReady || !this.analyzer || !this.parseResult) {

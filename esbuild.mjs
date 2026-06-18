@@ -57,6 +57,18 @@ const cacheWriteWorkerBuild = esbuild.build({
   external: ['vscode'],
 });
 
+// Bundle the canvas host (serves the webview as a Copilot app canvas; no vscode)
+const canvasHostBuild = esbuild.build({
+  entryPoints: ['src/canvas/host.ts'],
+  bundle: true,
+  platform: 'node',
+  target: 'es2022',
+  format: 'cjs',
+  outfile: 'dist/canvas-host.cjs',
+  sourcemap: true,
+  external: ['vscode'],
+});
+
 // Bundle the webview script
 const webviewBuild = esbuild.build({
   entryPoints: ['src/webview/app.ts'],
@@ -68,7 +80,7 @@ const webviewBuild = esbuild.build({
   sourcemap: true,
 });
 
-await Promise.all([extensionBuild, workerBuild, parseWorkerBuild, cacheWriteWorkerBuild, webviewBuild]);
+await Promise.all([extensionBuild, workerBuild, parseWorkerBuild, cacheWriteWorkerBuild, canvasHostBuild, webviewBuild]);
 
 // Copy static webview assets
 const webviewDist = 'dist/webview';
@@ -156,6 +168,16 @@ if (isWatch) {
     sourcemap: true,
     external: ['vscode'],
   });
+  const ctxCanvas = await esbuild.context({
+    entryPoints: ['src/canvas/host.ts'],
+    bundle: true,
+    platform: 'node',
+    target: 'es2022',
+    format: 'cjs',
+    outfile: 'dist/canvas-host.cjs',
+    sourcemap: true,
+    external: ['vscode'],
+  });
   const ctx4 = await esbuild.context({
     entryPoints: ['src/webview/app.ts'],
     bundle: true,
@@ -165,7 +187,7 @@ if (isWatch) {
     outfile: 'dist/webview/app.js',
     sourcemap: true,
   });
-  await Promise.all([ctx1.watch(), ctx2.watch(), ctx3.watch(), ctx4.watch(), ctx5.watch()]);
+  await Promise.all([ctx1.watch(), ctx2.watch(), ctx3.watch(), ctx4.watch(), ctx5.watch(), ctxCanvas.watch()]);
   for (const source of cssSources) {
     fs.watch(source, () => {
       try {
