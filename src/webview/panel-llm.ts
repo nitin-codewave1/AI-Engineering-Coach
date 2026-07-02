@@ -8,6 +8,7 @@
 import * as vscode from 'vscode';
 import { runtimeDebug } from '../core/runtime-debug';
 import { redactSecrets } from '../core/redact-secrets';
+import { hostEditorName } from './host-info';
 
 export interface JsonSchemaSpec {
   name: string;
@@ -346,7 +347,10 @@ async function selectModel(): Promise<vscode.LanguageModelChat> {
   }
   const any = await vscode.lm.selectChatModels({});
   if (any.length > 0) return any[0];
-  throw new Error('No language model available. Make sure GitHub Copilot is installed and signed in.');
+  const editor = hostEditorName();
+  throw new Error(editor === 'VS Code' || editor === 'VS Code Insiders'
+    ? 'No language model available. Make sure GitHub Copilot is installed and signed in.'
+    : `No language model available in ${editor}. Install/sign in to GitHub Copilot Chat, or open this workspace in VS Code, to use this.`);
 }
 
 /** Race a promise against a timeout. Rejects with a clear message on timeout. */

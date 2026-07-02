@@ -15,6 +15,7 @@ import { WebviewMessage } from '../core/types';
 import { panelCache } from './panel-cache';
 import { clearCatalogCache } from './panel-catalog';
 import { getDashboardHtml, getErrorHtml } from './panel-html';
+import { hostEditorName } from './host-info';
 import { getRpcHandler } from './panel-rpc';
 import { PanelRequestService } from './panel-request-service';
 import { DashboardSidebarProvider } from './panel-sidebar';
@@ -220,7 +221,7 @@ export class DashboardPanel {
       if (dirs.length === 0 && !hasExternal) {
         runtimeDebug('panel', 'loadData-no-dirs');
         if (!this.disposed) {
-          try { this.panel.webview.html = getErrorHtml('No AI coding session logs found. Looked for VS Code, GitHub Copilot (CLI and Xcode), Claude Code, Codex, and OpenCode sessions.'); } catch { /* disposed */ }
+          try { this.panel.webview.html = getErrorHtml(`No AI coding session logs found. Looked for ${hostEditorName()}, GitHub Copilot (CLI and Xcode), Claude Code (CLI and Desktop), Cursor, Codex, and OpenCode sessions.`); } catch { /* disposed */ }
         }
         return;
       }
@@ -298,9 +299,17 @@ export class DashboardPanel {
     }
 
     // Host capability probe — answered immediately so the webview can gate
-    // agent-dependent features. The VS Code host always has the local agent.
+    // agent-dependent features. `llm` is a real probe, not an assumption: VS Code
+    // forks (Cursor, Windsurf, ...) run this extension unmodified but don't all
+    // register a `vscode.lm` chat model provider the way GitHub Copilot does, so
+    // claiming `llm: true` unconditionally left agent-dependent buttons enabled
+    // in forks where they'd only fail with a Copilot-specific error at click time.
     if (msg.method === 'getCapabilities') {
-      try { postResponse(this.panel.webview, msg.id, { host: 'vscode', llm: true }); } catch { /* disposed */ }
+      void (async () => {
+        let llm = false;
+        try { llm = (await vscode.lm.selectChatModels({})).length > 0; } catch { /* no lm provider registered */ }
+        try { postResponse(this.panel.webview, msg.id, { host: 'vscode', editorName: hostEditorName(), llm }); } catch { /* disposed */ }
+      })();
       return;
     }
 

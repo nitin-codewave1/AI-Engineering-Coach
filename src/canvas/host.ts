@@ -23,6 +23,10 @@ export interface CanvasHostOptions {
   distDir: string;
   /** Name of the repo/folder the canvas was opened in; scopes the initial "Current" workspace filter. */
   repoName?: string;
+  /** What to report as `editorName` in getCapabilities — this host has more than one caller
+   *  (the Copilot App canvas, a plain-terminal dashboard script, ...) and they aren't the same
+   *  place, so the default here would otherwise mislabel every caller as the Copilot App. */
+  hostLabel?: string;
 }
 
 export interface CanvasHost {
@@ -126,9 +130,9 @@ export function createCanvasHost(options: CanvasHostOptions): CanvasHost {
   }
 
   function dispatchRpc(method: string, params: Record<string, unknown>): unknown {
-    if (method === 'getCapabilities') return { host: 'canvas', llm: false };
+    if (method === 'getCapabilities') return { host: 'canvas', editorName: options.hostLabel ?? 'GitHub Copilot App', llm: false };
     if (method in HOST_STUBS) return HOST_STUBS[method]();
-    if (AGENT_ONLY.has(method)) return { error: 'This feature requires the local agent in VS Code.' };
+    if (AGENT_ONLY.has(method)) return { error: 'This feature requires the local agent — open this dashboard in the VS Code or Cursor extension to use it.' };
 
     if (!ready || !analyzer || !parseResult) return { error: 'Data is still loading.' };
 

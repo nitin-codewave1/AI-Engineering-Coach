@@ -7,7 +7,13 @@ Analyze your AI coding assistant usage — any harness, one dashboard.
 
 <p align="center">
 <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
-<img alt="VS Code 1.115+" src="https://img.shields.io/badge/VS%20Code-1.115%2B-007ACC">
+<img alt="Cursor" src="https://img.shields.io/badge/Cursor-supported-000000">
+<img alt="VS Code 1.105+" src="https://img.shields.io/badge/VS%20Code-1.105%2B-007ACC">
+<img alt="Claude Code" src="https://img.shields.io/badge/Claude%20Code-supported-CC785C">
+</p>
+
+<p align="center">
+<strong>🎯 Runs natively in Cursor.</strong> Install the same <code>.vsix</code> in Cursor as you would VS Code — no fork-specific build, no compatibility shims. If your team is on Cursor, start at <a href="#install-in-cursor">Install in Cursor</a>.
 </p>
 
 <br>
@@ -23,6 +29,8 @@ https://github.com/user-attachments/assets/9f0239bf-20e0-459f-b137-17cce0edd1b2
 ## What it does
 
 AI Engineer Coach reads your local AI session logs and turns them into actionable insights — no data leaves your machine.
+
+Runs as an extension inside **Cursor** or **VS Code**, and reads session logs from **Cursor, VS Code/Copilot, Claude Code (CLI + Desktop), Xcode Copilot Chat, Codex, OpenCode, and GitHub Copilot CLI** — mix and match tools and everything still lands in one dashboard.
 
 - **Track progress** -- practice scores, weekly trends, daily activity charts
 - **Detect anti-patterns** -- 45 rules across prompt quality, session hygiene, code review, tool mastery, and context management
@@ -52,37 +60,11 @@ AI Engineer Coach reads your local AI session logs and turns them into actionabl
 
 ## Installation
 
-The extension is not published to a marketplace or Releases page, so you build the `.vsix` yourself and install it. Pick whichever build path fits your setup.
+The extension is not published to a marketplace or Releases page, so you build the `.vsix` yourself and install it. Cursor is an Electron/VS Code fork that runs the standard extension host, so the exact same `.vsix` installs and runs unmodified in either editor — pick your host below.
 
-### Path 1 -- Dev Container build (no local Node.js/npm)
+### Build the `.vsix`
 
-Prerequisites:
-
-- VS Code
-- Dev Containers extension
-- Docker or Podman
-
-Steps:
-
-1. Clone the repo and open it in VS Code.
-2. Reopen in container.
-3. Run:
-
-```bash
-npm ci
-npm run package
-```
-
-4. Install the generated `.vsix` (see [Install the built VSIX](#install-the-built-vsix) below).
-
-### Path 2 -- Local build
-
-Prerequisites:
-
-- VS Code
-- Node.js and npm
-
-Steps:
+Prerequisites: Node.js and npm (or VS Code + Dev Containers + Docker/Podman if you'd rather not install Node locally — see [Dev Container build](#dev-container-build-no-local-nodejsnpm) below).
 
 ```bash
 git clone https://github.com/microsoft/ai-engineering-coach.git
@@ -91,9 +73,25 @@ npm ci
 npm run package
 ```
 
-Then install the generated `.vsix` (see below).
+This produces `ai-engineer-coach-0.1.0.vsix` in the repo root.
 
-### Install the built VSIX
+### Install in Cursor
+
+**macOS / Linux**
+
+```bash
+cursor --install-extension ai-engineer-coach-*.vsix
+```
+
+**Windows / PowerShell**
+
+```powershell
+cursor --install-extension (Get-ChildItem . -Filter 'ai-engineer-coach-*.vsix' | Select-Object -First 1).FullName
+```
+
+If `cursor` isn't on your `PATH`, open the Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`) → **Shell Command: Install 'cursor' command in PATH** first, or install from the UI instead: Extensions panel → `...` menu → **Install from VSIX...** → select the file (or just drag the `.vsix` onto the Extensions panel).
+
+### Install in VS Code
 
 **macOS / Linux**
 
@@ -109,11 +107,31 @@ code --install-extension (Get-ChildItem . -Filter 'ai-engineer-coach-*.vsix' | S
 
 If the CLI does not work, install it from the VS Code UI: press `Ctrl+Shift+P`, type **Install from VSIX**, then browse to the `.vsix` file and select it.
 
-After install:
+### After installing (either editor)
 
 1. Open the command palette (`Cmd+Shift+P` / `Ctrl+Shift+P`)
 2. Run **AI Engineer Coach: Open Dashboard**
 3. Navigate pages from the sidebar, filter by workspace or harness
+
+### Dev Container build (no local Node.js/npm)
+
+Prerequisites: VS Code, the Dev Containers extension, and Docker or Podman.
+
+1. Clone the repo and open it in VS Code.
+2. Reopen in container.
+3. Run `npm ci && npm run package` inside the container.
+4. Copy the generated `.vsix` out and install it per [Install in Cursor](#install-in-cursor) or [Install in VS Code](#install-in-vs-code) above.
+
+---
+
+## Using with Claude Code
+
+Claude Code isn't a host for this extension — it's just a data source. There's nothing to install or configure inside Claude Code itself; the dashboard reads your existing session logs straight off disk once it opens.
+
+- **Claude Code CLI**: sessions under `~/.claude/projects/` are picked up automatically the first time you run `claude` in a project.
+- **Claude Desktop app**: sessions from its built-in coding agent are scanned from the same directory tree alongside the CLI's, with no duplicate counting.
+
+The extension itself still needs a host to run its dashboard UI — install it in [Cursor](#install-in-cursor) or [VS Code](#install-in-vs-code) above, then filter by the **Claude** harness in the sidebar to see just your Claude Code activity.
 
 ---
 
@@ -183,7 +201,7 @@ A few features depend on the local VS Code language model and are hidden in canv
 - **Read-only** — the extension never modifies your session files
 - **Local analysis** — all parsing and analytics run entirely on your machine
 - **No proprietary telemetry** — the extension does not phone home or collect usage data
-- **Optional AI features** — some features (rule compiler, skill finder, context review) use the VS Code built-in Copilot language model API when explicitly invoked by the user
+- **Optional AI features** — some features (rule compiler, skill finder, context review) use the host's built-in Copilot language model API when explicitly invoked by the user. Cursor doesn't expose its own AI through that API, so these buttons stay greyed out there unless you also have GitHub Copilot Chat installed and signed in — every log-driven page (Dashboard, Timeline, Output, Patterns, Anti-Patterns, etc.) works fully either way
 
 ---
 

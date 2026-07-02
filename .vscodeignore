@@ -41,7 +41,9 @@ marketing/**
 # Benchmark / perf outputs
 benchmark-*.json
 
-# Runtime deps are bundled into dist/ by esbuild — ship the bundle, not node_modules
+# Runtime deps are bundled into dist/ by esbuild — ship the bundle, not node_modules.
+# (better-sqlite3's native addon is external to the bundle but esbuild.mjs copies its
+# pruned files into dist/node_modules/, so this rule can stay a blanket exclude.)
 node_modules/**
 
 # Local manual-test rules (project-layer, for exercising the trust gate in dev)

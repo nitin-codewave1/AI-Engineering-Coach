@@ -21,7 +21,7 @@ const extensionBuild = esbuild.build({
   format: 'cjs',
   outfile: 'dist/extension.js',
   sourcemap: true,
-  external: ['vscode'],
+  external: ['vscode', 'better-sqlite3'],
   define,
 });
 
@@ -34,7 +34,7 @@ const workerBuild = esbuild.build({
   format: 'cjs',
   outfile: 'dist/warm-up-worker.js',
   sourcemap: true,
-  external: ['vscode'],
+  external: ['vscode', 'better-sqlite3'],
 });
 
 // Bundle the parse worker (runs the full parse pipeline off the extension host thread)
@@ -46,7 +46,7 @@ const parseWorkerBuild = esbuild.build({
   format: 'cjs',
   outfile: 'dist/parse-worker.js',
   sourcemap: true,
-  external: ['vscode'],
+  external: ['vscode', 'better-sqlite3'],
 });
 
 // Bundle the cache write worker (writes cache data to disk off the main thread)
@@ -58,7 +58,7 @@ const cacheWriteWorkerBuild = esbuild.build({
   format: 'cjs',
   outfile: 'dist/cache-write-worker.js',
   sourcemap: true,
-  external: ['vscode'],
+  external: ['vscode', 'better-sqlite3'],
 });
 
 // Bundle the canvas host (serves the webview as a Copilot app canvas; no vscode)
@@ -70,7 +70,7 @@ const canvasHostBuild = esbuild.build({
   format: 'cjs',
   outfile: 'dist/canvas-host.cjs',
   sourcemap: true,
-  external: ['vscode'],
+  external: ['vscode', 'better-sqlite3'],
 });
 
 // Bundle the webview script
@@ -85,6 +85,34 @@ const webviewBuild = esbuild.build({
 });
 
 await Promise.all([extensionBuild, workerBuild, parseWorkerBuild, cacheWriteWorkerBuild, canvasHostBuild, webviewBuild]);
+
+// Copy better-sqlite3's native addon into dist/node_modules/ (Cursor parser dependency).
+// It's marked `external` above because esbuild can't bundle a native .node binary; Node's
+// own module resolution then finds it here at runtime, same as an ordinary node_modules/.
+// Only the compiled binary + JS wrapper are copied — no C++ src/ or deps/ (sqlite amalgamation).
+function copyDir(src, dest, filter = () => true) {
+  fs.mkdirSync(dest, { recursive: true });
+  for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
+    const s = path.join(src, entry.name);
+    const d = path.join(dest, entry.name);
+    if (entry.isDirectory()) copyDir(s, d, filter);
+    else if (filter(s)) { fs.mkdirSync(path.dirname(d), { recursive: true }); fs.copyFileSync(s, d); }
+  }
+}
+for (const pkg of ['better-sqlite3', 'bindings', 'file-uri-to-path']) {
+  const src = path.join('node_modules', pkg);
+  if (!fs.existsSync(src)) continue;
+  const dest = path.join('dist/node_modules', pkg);
+  if (pkg === 'better-sqlite3') {
+    copyDir(src, dest, (f) => {
+      if (f.includes(`${path.sep}deps${path.sep}`) || f.includes(`${path.sep}src${path.sep}`)) return false;
+      if (f.endsWith('.node')) return f.includes(path.join('build', 'Release'));
+      return f.endsWith('.js') || f.endsWith('package.json') || f.endsWith('LICENSE');
+    });
+  } else {
+    copyDir(src, dest);
+  }
+}
 
 // Copy static webview assets
 const webviewDist = 'dist/webview';
@@ -140,7 +168,7 @@ if (isWatch) {
     format: 'cjs',
     outfile: 'dist/extension.js',
     sourcemap: true,
-    external: ['vscode'],
+    external: ['vscode', 'better-sqlite3'],
     define,
   });
   const ctx2 = await esbuild.context({
@@ -151,7 +179,7 @@ if (isWatch) {
     format: 'cjs',
     outfile: 'dist/warm-up-worker.js',
     sourcemap: true,
-    external: ['vscode'],
+    external: ['vscode', 'better-sqlite3'],
   });
   const ctx3 = await esbuild.context({
     entryPoints: ['src/core/parse-worker.ts'],
@@ -161,7 +189,7 @@ if (isWatch) {
     format: 'cjs',
     outfile: 'dist/parse-worker.js',
     sourcemap: true,
-    external: ['vscode'],
+    external: ['vscode', 'better-sqlite3'],
   });
   const ctx5 = await esbuild.context({
     entryPoints: ['src/core/cache-write-worker.ts'],
@@ -171,7 +199,7 @@ if (isWatch) {
     format: 'cjs',
     outfile: 'dist/cache-write-worker.js',
     sourcemap: true,
-    external: ['vscode'],
+    external: ['vscode', 'better-sqlite3'],
   });
   const ctxCanvas = await esbuild.context({
     entryPoints: ['src/canvas/host.ts'],
@@ -181,7 +209,7 @@ if (isWatch) {
     format: 'cjs',
     outfile: 'dist/canvas-host.cjs',
     sourcemap: true,
-    external: ['vscode'],
+    external: ['vscode', 'better-sqlite3'],
   });
   const ctx4 = await esbuild.context({
     entryPoints: ['src/webview/app.ts'],

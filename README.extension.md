@@ -1,13 +1,16 @@
 <h1 align="center">AI Engineer Coach</h1>
 
 <p align="center">
-Analyze your AI coding assistant usage across VS Code, GitHub Copilot for Xcode, Claude, Codex, OpenCode, and GitHub Copilot CLI.
+Analyze your AI coding assistant usage across Cursor, VS Code, Claude Code, GitHub Copilot for Xcode, Codex, OpenCode, and GitHub Copilot CLI.
 </p>
 
 <p align="center">
 <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
-<img alt="VS Code 1.85+" src="https://img.shields.io/badge/VS%20Code-1.85%2B-007ACC">
+<img alt="Cursor" src="https://img.shields.io/badge/Cursor-supported-000000">
+<img alt="VS Code 1.105+" src="https://img.shields.io/badge/VS%20Code-1.105%2B-007ACC">
 </p>
+
+You're seeing this dashboard because you installed the extension in **Cursor** or **VS Code** — it runs identically in both; nothing is Cursor- or VS Code-specific about the UI you're looking at. Below the page reference, [**Supported Harnesses**](#supported-harnesses) lists every tool this dashboard can read session data from, and [**Using with Claude Code**](#using-with-claude-code) covers that data source specifically since it needs no setup at all.
 
 ## Highlights
 
@@ -58,14 +61,24 @@ The extension is organized into three sections: **Observe**, **Measure**, and **
 | **Local Agent (Server)** | Linux/macOS remote host: `~/.vscode-server/data/User/workspaceStorage/` |
 | **Local Agent (Server Insiders)** | Linux/macOS remote host: `~/.vscode-server-insiders/data/User/workspaceStorage/` |
 | **Xcode Copilot Chat** | `~/.config/github-copilot/xcode/` (requires `sqlite3`) |
-| **Claude** | macOS/Linux: `~/.claude/projects/`<br>Windows: `%USERPROFILE%\.claude\projects\` |
+| **Claude** | Claude Code CLI — macOS/Linux: `~/.claude/projects/`<br>Windows: `%USERPROFILE%\.claude\projects\`<br>Claude Desktop app's built-in coding agent (same session format, scanned automatically alongside the CLI) — macOS: `~/Library/Application Support/Claude/projects/`<br>Linux: `~/.config/Claude/projects/`<br>Windows: `%APPDATA%\Claude\projects\` |
+| **Cursor** | macOS: `~/Library/Application Support/Cursor/User/`<br>Linux: `~/.config/Cursor/User/`<br>Windows: `%APPDATA%\Cursor\User\` |
 | **Codex** | macOS/Linux: `~/.codex/sessions/`<br>Windows: `%USERPROFILE%\.codex\sessions\` |
 | **OpenCode** | macOS/Linux: `~/.local/share/opencode/`<br>Windows: `%USERPROFILE%\.local\share\opencode\` |
 | **GitHub Copilot CLI** | `~/.copilot/session-state/` and `~/.copilot/history-session-state/` |
 
+### Using with Claude Code
+
+Claude Code isn't a host for this extension — it's just a data source, so there's nothing to install or configure inside Claude Code itself. The dashboard reads your existing session logs straight off disk the moment it opens:
+
+- **Claude Code CLI** sessions are created automatically the first time you run `claude` in a project — no setup needed.
+- **Claude Desktop app** sessions (from its built-in coding agent) are picked up from the same directory tree, right alongside the CLI's, with zero double-counting.
+
+Open the dashboard (see **Getting Started** below) on the same machine where you use Claude Code, and your sessions show up immediately under the **Claude** harness — filter by it in the sidebar to see just that data.
+
 ### Chat
 
-Type `@aicoach` in any VS Code chat panel for conversational access to all coaching data. Slash commands `/summary`, `/improve`, `/compare`, and `/flow` give quick access to common analyses. The participant orchestrates multiple backend tools automatically to answer complex questions.
+Type `@aicoach` in the **VS Code Copilot Chat** panel for conversational access to all coaching data. Slash commands `/summary`, `/improve`, `/compare`, and `/flow` give quick access to common analyses. The participant orchestrates multiple backend tools automatically to answer complex questions. This registers through VS Code's chat-participant API — Cursor uses its own chat UI, so `@aicoach` may not be reachable there. The dashboard itself (all pages listed above) works the same regardless.
 
 ## Getting Started
 
@@ -73,7 +86,7 @@ Type `@aicoach` in any VS Code chat panel for conversational access to all coach
 2. Run **AI Engineer Coach: Open Dashboard**.
 3. Use the sidebar to navigate pages. Filter by workspace or harness at the bottom.
 4. Run **AI Engineer Coach: Reload Data** to re-parse after new sessions.
-5. Type `@aicoach` in VS Code chat for conversational coaching.
+5. In VS Code with Copilot Chat, type `@aicoach` for conversational coaching (see [Chat](#chat)).
 
 
 

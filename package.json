@@ -1,7 +1,7 @@
 {
   "name": "ai-engineer-coach",
   "displayName": "AI Engineer Coach",
-  "description": "Analyze your AI coding assistant usage across VS Code, Xcode, Claude, Codex, and OpenCode. Read-only, zero telemetry.",
+  "description": "Analyze your AI coding assistant usage across Cursor, VS Code, Claude Code, Xcode, Codex, and OpenCode. Read-only, zero telemetry.",
   "version": "0.1.0",
   "publisher": "ai-engineer-coach",
   "author": {
@@ -17,7 +17,7 @@
     "url": "https://github.com/microsoft/AI-Engineering-Coach/issues"
   },
   "engines": {
-    "vscode": "^1.125.0"
+    "vscode": "^1.105.0"
   },
   "categories": [
     "Other",
@@ -294,6 +294,7 @@
     "vscode:prepublish": "npm run build",
     "build": "node esbuild.mjs",
     "watch": "node esbuild.mjs --watch",
+    "dashboard": "node scripts/open-dashboard.mjs",
     "lint": "eslint src/",
     "bench": "vitest bench",
     "test": "vitest run",
@@ -330,8 +331,9 @@
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@playwright/test": "1.61.0",
+    "@types/better-sqlite3": "7.6.13",
     "@types/node": "26.0.0",
-    "@types/vscode": "1.125.0",
+    "@types/vscode": "1.105.0",
     "@vitest/coverage-v8": "4.1.9",
     "@vscode/vsce": "3.9.2",
     "cspell": "10.0.1",
@@ -352,6 +354,7 @@
     "vitest": "4.1.9"
   },
   "dependencies": {
+    "better-sqlite3": "12.11.1",
     "chart.js": "4.5.1",
     "chartjs-chart-treemap": "3.1.0",
     "htm": "3.1.1",

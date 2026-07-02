@@ -45,15 +45,18 @@ function getTrustedRoots(): string[] {
   if (process.platform === 'darwin') {
     if (home) roots.push(path.resolve(home, 'Library', 'Application Support', 'Code'));
     if (home) roots.push(path.resolve(home, 'Library', 'Application Support', 'Code - Insiders'));
+    if (home) roots.push(path.resolve(home, 'Library', 'Application Support', 'Cursor'));
   } else if (process.platform === 'win32') {
     const appdata = process.env.APPDATA || '';
     if (appdata) {
       roots.push(path.resolve(appdata, 'Code'));
       roots.push(path.resolve(appdata, 'Code - Insiders'));
+      roots.push(path.resolve(appdata, 'Cursor'));
     }
   } else {
     if (home) roots.push(path.resolve(home, '.config', 'Code'));
     if (home) roots.push(path.resolve(home, '.config', 'Code - Insiders'));
+    if (home) roots.push(path.resolve(home, '.config', 'Cursor'));
   }
 
   // Standard session log locations

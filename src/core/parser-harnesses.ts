@@ -10,6 +10,7 @@ import { Workspace, Session } from './types';
 import { findClaudeDirs, parseClaudeSessions, parseClaudeSessionsAsync } from './parser-claude';
 import { findCodexDirs, parseCodexSessions } from './parser-codex';
 import { findOpenCodeDirs, parseOpenCodeSessions } from './parser-opencode';
+import { findCursorDirs, parseCursorSessions } from './parser-cursor';
 
 type WorkspaceMap = Map<string, Workspace>;
 
@@ -69,6 +70,14 @@ const EXTERNAL_HARNESSES: ExternalHarnessCollector[] = [
       }
     },
   },
+  {
+    name: 'Cursor',
+    collectSync(ctx) {
+      for (const cursorDir of findCursorDirs()) {
+        for (const session of parseCursorSessions(cursorDir)) addSession(ctx.workspaces, ctx.sessions, session, cursorDir);
+      }
+    },
+  },
 ];
 
 export interface ExternalHarnessProgressHandlers {
@@ -88,7 +97,7 @@ export function hasExternalHarnessSources(): boolean {
   // string and probe relative paths (e.g. `.claude/projects`) under the current
   // working directory, which could report false positives. Bail out instead.
   if (!process.env.HOME && !process.env.USERPROFILE) return false;
-  return findClaudeDirs().length > 0 || findCodexDirs().length > 0 || findOpenCodeDirs().length > 0;
+  return findClaudeDirs().length > 0 || findCodexDirs().length > 0 || findOpenCodeDirs().length > 0 || findCursorDirs().length > 0;
 }
 
 export function collectExternalHarnessesSync(workspaces: WorkspaceMap, sessions: Session[]): void {
@@ -106,6 +115,7 @@ export const EXTERNAL_HARNESS_SET = new Set<string>([
   'Claude',
   'Codex',
   'OpenCode',
+  'Cursor',
 ]);
 
 export async function collectExternalHarnessesAsync(
