@@ -113,6 +113,22 @@ If the CLI does not work, install it from the VS Code UI: press `Ctrl+Shift+P`, 
 2. Run **AI Engineer Coach: Open Dashboard**
 3. Navigate pages from the sidebar, filter by workspace or harness
 
+### Run from a terminal (no Cursor or VS Code needed)
+
+If you just want to see the dashboard — e.g. from inside a Claude Code session, or on a machine without Cursor/VS Code installed — skip the extension install entirely:
+
+```bash
+git clone https://github.com/microsoft/ai-engineering-coach.git
+cd ai-engineering-coach
+npm install
+npm run build
+npm run dashboard
+```
+
+This builds the project, starts a local server on `127.0.0.1`, and opens the full dashboard in your default browser. It reads the same on-disk session logs as the extension (nothing leaves your machine) and requires no editor. Stop it with `Ctrl+C`.
+
+A few AI-assisted features that depend on an editor's language model (Skill Finder, Learning Center, Level Up, Context Health's AI review) aren't available in this mode — everything driven by your logs directly (Dashboard, Timeline, Coding Moments, Output, Patterns, Anti-Patterns) works the same as in the extension.
+
 ### Dev Container build (no local Node.js/npm)
 
 Prerequisites: VS Code, the Dev Containers extension, and Docker or Podman.
@@ -131,7 +147,7 @@ Claude Code isn't a host for this extension — it's just a data source. There's
 - **Claude Code CLI**: sessions under `~/.claude/projects/` are picked up automatically the first time you run `claude` in a project.
 - **Claude Desktop app**: sessions from its built-in coding agent are scanned from the same directory tree alongside the CLI's, with no duplicate counting.
 
-The extension itself still needs a host to run its dashboard UI — install it in [Cursor](#install-in-cursor) or [VS Code](#install-in-vs-code) above, then filter by the **Claude** harness in the sidebar to see just your Claude Code activity.
+The extension itself still needs a host to run its dashboard UI — install it in [Cursor](#install-in-cursor) or [VS Code](#install-in-vs-code) above, or if you don't have either installed, [run it from a terminal](#run-from-a-terminal-no-cursor-or-vs-code-needed) instead. Either way, filter by the **Claude** harness in the sidebar to see just your Claude Code activity.
 
 ---
 
