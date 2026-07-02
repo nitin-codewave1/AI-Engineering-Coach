@@ -107,7 +107,7 @@ code --install-extension (Get-ChildItem . -Filter 'ai-engineer-coach-*.vsix' | S
 
 If the CLI does not work, install it from the VS Code UI: press `Ctrl+Shift+P`, type **Install from VSIX**, then browse to the `.vsix` file and select it.
 
-### After installing (either editor)
+### Open the dashboard (Cursor or VS Code)
 
 1. Open the command palette (`Cmd+Shift+P` / `Ctrl+Shift+P`)
 2. Run **AI Engineer Coach: Open Dashboard**
